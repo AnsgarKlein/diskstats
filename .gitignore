@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+
+# Python environment
+/.env/
+/.venv/
+/env/
+/venv/
+/ENV/
+/VENV/
+
+# mypy
+/.mypy_cache/
