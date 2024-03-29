@@ -193,12 +193,32 @@ print_output() {
         output_str+="    \"write_ticks\": ${WRITE_TICKS[$device]},\n"
         output_str+="    \"in_flight\": ${IN_FLIGHT[$device]},\n"
         output_str+="    \"io_ticks\": ${IO_TICKS[$device]},\n"
-        output_str+="    \"time_in_queue\": ${TIME_IN_QUEUE[$device]}\n"
+        output_str+="    \"time_in_queue\": ${TIME_IN_QUEUE[$device]},\n"
 
-	# TODO: Add optional values to output
+        if [[ "${DISCARD_IOS[$device]}" ]]; then
+            output_str+="    \"discard_ios\": ${DISCARD_IOS[$device]},\n"
+        fi
+        if [[ "${DISCARD_MERGES[$device]}" ]]; then
+            output_str+="    \"discard_merges\": ${DISCARD_MERGES[$device]},\n"
+        fi
+        if [[ "${DISCARD_SECTORS[$device]}" ]]; then
+            output_str+="    \"discard_sectors\": ${DISCARD_SECTORS[$device]},\n"
+        fi
+        if [[ "${DISCARD_TICKS[$device]}" ]]; then
+            output_str+="    \"discard_ticks\": ${DISCARD_TICKS[$device]},\n"
+        fi
+        if [[ "${FLUSH_IOS[$device]}" ]]; then
+            output_str+="    \"flush_ios\": ${FLUSH_IOS[$device]},\n"
+        fi
+        if [[ "${FLUSH_TICKS[$device]}" ]]; then
+            output_str+="    \"flush_ticks\": ${FLUSH_TICKS[$device]},\n"
+        fi
+
+        # Remove last comma separating device statistics
+        output_str="${output_str::-3}\n"
         output_str+="  }"
 
-        # Append comma if device is not the last one
+        # Append comma separating devices if device is not the last one
         if [[ "$(( i + 1 ))" -ne "${#devices[@]}" ]]; then
             output_str+=',\n'
         else
@@ -207,7 +227,7 @@ print_output() {
         unset device
     done
 
-    output_str+="}\n"
+    output_str+="}"
     echo -e "$output_str"
 }
 
