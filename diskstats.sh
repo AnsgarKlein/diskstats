@@ -23,6 +23,21 @@
 # SOFTWARE.
 
 
+# This script reads statistics information about block devices from the
+# kernel virtual filesystems.
+# The column number being referred to in this script is the column in
+# /sys/block/<device>/stat file. However this script actually reads
+# /proc/diskstats file. /proc/diskstats contains the same columns as
+# /sys/block/<device>/stat but contains information about *all* devices
+# in a single file and starts with three extra columns.
+#
+# More information:
+# https://www.kernel.org/doc/Documentation/ABI/testing/procfs-diskstats
+# https://www.kernel.org/doc/Documentation/iostats.txt
+# https://docs.kernel.org/block/stat.html
+# https://docs.kernel.org/admin-guide/iostats.html
+
+
 # Associative arrays storing different pieces of information
 # about devices.
 declare -A READ_IOS        # Col 1
@@ -42,10 +57,6 @@ declare -A DISCARD_SECTORS # Col 14, since Kernel 4.18
 declare -A DISCARD_TICKS   # Col 15, since Kernel 4.18
 declare -A FLUSH_IOS       # Col 16, since Kernel 5.5
 declare -A FLUSH_TICKS     # Col 17, since Kernel 5.5
-# https://www.kernel.org/doc/Documentation/ABI/testing/procfs-diskstats
-# https://www.kernel.org/doc/Documentation/iostats.txt
-# https://docs.kernel.org/block/stat.html
-# https://docs.kernel.org/admin-guide/iostats.html
 
 
 # Get output of /proc/diskstats with removed whitespaces
