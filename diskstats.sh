@@ -144,6 +144,8 @@ parse_diskstats_for_device() {
     exec 11< <(echo "$diskstats" | cut -d ' ' -f9)
     exec 12< <(echo "$diskstats" | cut -d ' ' -f10)
     exec 13< <(echo "$diskstats" | cut -d ' ' -f11)
+
+    # Only extract statistics from columns that exist
     if [[ "$column_count" -ge 12 ]]; then
         exec 14< <(echo "$diskstats" | cut -d ' ' -f12)
     fi
@@ -162,35 +164,66 @@ parse_diskstats_for_device() {
     if [[ "$column_count" -ge 17 ]]; then
         exec 19< <(echo "$diskstats" | cut -d ' ' -f17)
     fi
-    READ_IOS[$device]=$(cat <&3)
-    READ_MERGES[$device]=$(cat <&4)
-    READ_SECTORS[$device]=$(cat <&5)
-    READ_TICKS[$device]=$(cat <&6)
-    WRITE_IOS[$device]=$(cat <&7)
-    WRITE_MERGES[$device]=$(cat <&8)
-    WRITE_SECTORS[$device]=$(cat <&9)
-    WRITE_TICKS[$device]=$(cat <&10)
-    IN_FLIGHT[$device]=$(cat <&11)
-    IO_TICKS[$device]=$(cat <&12)
-    TIME_IN_QUEUE[$device]=$(cat <&13)
+
+    # Temporary variable to read output from
+    # asynchronous jobs into
+    local tmpread
+
+    # Wait until all asynchronous jobs have finished
+    wait
+
+    # Read output from asynchronous jobs into temporary
+    # variable first, then store it in associative array.
+    read -r <&3 tmpread
+    READ_IOS[$device]=$tmpread
+    read -r <&4 tmpread
+    READ_MERGES[$device]=$tmpread
+    read -r <&5 tmpread
+    READ_SECTORS[$device]=$tmpread
+    read -r <&6 tmpread
+    READ_TICKS[$device]=$tmpread
+    read -r <&7 tmpread
+    WRITE_IOS[$device]=$tmpread
+    read -r <&8 tmpread
+    WRITE_MERGES[$device]=$tmpread
+    read -r <&9 tmpread
+    WRITE_SECTORS[$device]=$tmpread
+    read -r <&10 tmpread
+    WRITE_TICKS[$device]=$tmpread
+    read -r <&11 tmpread
+    IN_FLIGHT[$device]=$tmpread
+    read -r <&12 tmpread
+    IO_TICKS[$device]=$tmpread
+    read -r <&13 tmpread
+    TIME_IN_QUEUE[$device]=$tmpread
+
+    # Read output of background jobs only if columns exist
     if [[ "$column_count" -ge 12 ]]; then
-        DISCARD_IOS[$device]=$(cat <&14)
+        read -r <&14 tmpread
+        DISCARD_IOS[$device]=$tmpread
     fi
     if [[ "$column_count" -ge 13 ]]; then
-        DISCARD_MERGES[$device]=$(cat <&15)
+        read -r <&15 tmpread
+        DISCARD_MERGES[$device]=$tmpread
     fi
     if [[ "$column_count" -ge 14 ]]; then
-        DISCARD_SECTORS[$device]=$(cat <&16)
+        read -r <&16 tmpread
+        DISCARD_SECTORS[$device]=$tmpread
     fi
     if [[ "$column_count" -ge 15 ]]; then
-        DISCARD_TICKS[$device]=$(cat <&17)
+        read -r <&17 tmpread
+        DISCARD_TICKS[$device]=$tmpread
     fi
     if [[ "$column_count" -ge 16 ]]; then
-        FLUSH_IOS[$device]=$(cat <&18)
+        read -r <&18 tmpread
+        FLUSH_IOS[$device]=$tmpread
     fi
     if [[ "$column_count" -ge 17 ]]; then
-        FLUSH_TICKS[$device]=$(cat <&19)
+        read -r <&19 tmpread
+        FLUSH_TICKS[$device]=$tmpread
     fi
+
+    unset tmpread
 }
 
 
