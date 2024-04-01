@@ -130,35 +130,66 @@ parse_diskstats_for_device() {
     # Count number of columns
     column_count=$(echo "$diskstats" | awk -F ' ' '{print NF}')
 
-    # Extract statistics
-    READ_IOS[$device]=$(echo "$diskstats" | cut -d ' ' -f1)
-    READ_MERGES[$device]=$(echo "$diskstats" | cut -d ' ' -f2)
-    READ_SECTORS[$device]=$(echo "$diskstats" | cut -d ' ' -f3)
-    READ_TICKS[$device]=$(echo "$diskstats" | cut -d ' ' -f4)
-    WRITE_IOS[$device]=$(echo "$diskstats" | cut -d ' ' -f5)
-    WRITE_MERGES[$device]=$(echo "$diskstats" | cut -d ' ' -f6)
-    WRITE_SECTORS[$device]=$(echo "$diskstats" | cut -d ' ' -f7)
-    WRITE_TICKS[$device]=$(echo "$diskstats" | cut -d ' ' -f8)
-    IN_FLIGHT[$device]=$(echo "$diskstats" | cut -d ' ' -f9)
-    IO_TICKS[$device]=$(echo "$diskstats" | cut -d ' ' -f10)
-    TIME_IN_QUEUE[$device]=$(echo "$diskstats" | cut -d ' ' -f11)
+    # Extract statistics asynchronously using background jobs,
+    # Command output gets sent to named pipe which we can later
+    # (synchronously) use to get the output.
+    exec 3< <(echo "$diskstats" | cut -d ' ' -f1)
+    exec 4< <(echo "$diskstats" | cut -d ' ' -f2)
+    exec 5< <(echo "$diskstats" | cut -d ' ' -f3)
+    exec 6< <(echo "$diskstats" | cut -d ' ' -f4)
+    exec 7< <(echo "$diskstats" | cut -d ' ' -f5)
+    exec 8< <(echo "$diskstats" | cut -d ' ' -f6)
+    exec 9< <(echo "$diskstats" | cut -d ' ' -f7)
+    exec 10< <(echo "$diskstats" | cut -d ' ' -f8)
+    exec 11< <(echo "$diskstats" | cut -d ' ' -f9)
+    exec 12< <(echo "$diskstats" | cut -d ' ' -f10)
+    exec 13< <(echo "$diskstats" | cut -d ' ' -f11)
     if [[ "$column_count" -ge 12 ]]; then
-        DISCARD_IOS[$device]=$(echo "$diskstats" | cut -d ' ' -f12)
+        exec 14< <(echo "$diskstats" | cut -d ' ' -f12)
     fi
     if [[ "$column_count" -ge 13 ]]; then
-        DISCARD_MERGES[$device]=$(echo "$diskstats" | cut -d ' ' -f13)
+        exec 15< <(echo "$diskstats" | cut -d ' ' -f13)
     fi
     if [[ "$column_count" -ge 14 ]]; then
-        DISCARD_SECTORS[$device]=$(echo "$diskstats" | cut -d ' ' -f14)
+        exec 16< <(echo "$diskstats" | cut -d ' ' -f14)
     fi
     if [[ "$column_count" -ge 15 ]]; then
-        DISCARD_TICKS[$device]=$(echo "$diskstats" | cut -d ' ' -f15)
+        exec 17< <(echo "$diskstats" | cut -d ' ' -f15)
     fi
     if [[ "$column_count" -ge 16 ]]; then
-        FLUSH_IOS[$device]=$(echo "$diskstats" | cut -d ' ' -f16)
+        exec 18< <(echo "$diskstats" | cut -d ' ' -f16)
     fi
     if [[ "$column_count" -ge 17 ]]; then
-        FLUSH_TICKS[$device]=$(echo "$diskstats" | cut -d ' ' -f17)
+        exec 19< <(echo "$diskstats" | cut -d ' ' -f17)
+    fi
+    READ_IOS[$device]=$(cat <&3)
+    READ_MERGES[$device]=$(cat <&4)
+    READ_SECTORS[$device]=$(cat <&5)
+    READ_TICKS[$device]=$(cat <&6)
+    WRITE_IOS[$device]=$(cat <&7)
+    WRITE_MERGES[$device]=$(cat <&8)
+    WRITE_SECTORS[$device]=$(cat <&9)
+    WRITE_TICKS[$device]=$(cat <&10)
+    IN_FLIGHT[$device]=$(cat <&11)
+    IO_TICKS[$device]=$(cat <&12)
+    TIME_IN_QUEUE[$device]=$(cat <&13)
+    if [[ "$column_count" -ge 12 ]]; then
+        DISCARD_IOS[$device]=$(cat <&14)
+    fi
+    if [[ "$column_count" -ge 13 ]]; then
+        DISCARD_MERGES[$device]=$(cat <&15)
+    fi
+    if [[ "$column_count" -ge 14 ]]; then
+        DISCARD_SECTORS[$device]=$(cat <&16)
+    fi
+    if [[ "$column_count" -ge 15 ]]; then
+        DISCARD_TICKS[$device]=$(cat <&17)
+    fi
+    if [[ "$column_count" -ge 16 ]]; then
+        FLUSH_IOS[$device]=$(cat <&18)
+    fi
+    if [[ "$column_count" -ge 17 ]]; then
+        FLUSH_TICKS[$device]=$(cat <&19)
     fi
 }
 
