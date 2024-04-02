@@ -63,24 +63,28 @@ declare -A FLUSH_TICKS     # Col 17, since Kernel 5.5
 # between columns
 #
 # Parameters: -
-# shellcheck disable=SC2120
+#   $1: Path to /proc/diskstats file
 get_diskstats() {
     # Check parameters
-    if [[ $# -ne 0 ]]; then
+    if [[ $# -ne 1 ]]; then
         echo 'get_diskstats()' > /dev/stderr
-        echo "Expected exactly 0 parameters, $# given" > /dev/stderr
+        echo "Expected exactly 1 parameters, $# given" > /dev/stderr
+        exit 1
+    fi
+    local diskstats_file
+    diskstats_file="$1"
+
+    if [[ ! -r "$diskstats_file" ]]; then
+        echo "Error: ${diskstats_file} not found or not readable!" > /dev/stderr
         exit 1
     fi
 
-    if [[ ! -r '/proc/diskstats' ]]; then
-        echo 'Error: /proc/diskstats not found or not readable!' > /dev/stderr
-        exit 1
-    fi
-    local disk_stats
-    disk_stats="$(cat /proc/diskstats)"
-    disk_stats="$(echo "$disk_stats" | tr -s ' ')"
+    # Read diskstats file and replace all duplicate whitespaces so
+    # columns are separated by exactly one whitespace.
+    local diskstats
+    diskstats="$(tr -s ' ' < "$diskstats_file")"
 
-    echo "$disk_stats"
+    echo "$diskstats"
 }
 
 
@@ -320,7 +324,7 @@ main() {
 
     # Read /proc/diskstats
     local diskstats
-    diskstats=$(get_diskstats)
+    diskstats=$(get_diskstats '/proc/diskstats')
 
     # Extract list of devices from /proc/diskstats
     local devices

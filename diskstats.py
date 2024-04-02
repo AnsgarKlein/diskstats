@@ -41,6 +41,7 @@ https://docs.kernel.org/admin-guide/iostats.html
 
 
 import json
+import sys
 
 
 # List of labels for columns
@@ -73,12 +74,16 @@ def get_diskstats(path='/proc/diskstats'):
     :param path: Path of diskstats file to read
     """
 
-    with open(path, 'r') as diskstats_file:
-        diskstats_content = diskstats_file.read()
+    try:
+        with open(path, 'r', encoding='ascii') as diskstats_file:
+            return diskstats_file.read()
+    except FileNotFoundError as error:
+        print(error, file=sys.stderr)
+        sys.exit(1)
+    except IOError as error:
+        print(error, file=sys.stderr)
+        sys.exit(1)
 
-    return diskstats_content
-
-def parse_diskstats_line(line):
     """
     Parse single line of diskstats file and return content as
     tuple of devicename and dictionary containing all statistics.
@@ -102,6 +107,7 @@ def parse_diskstats_line(line):
     # Create dict with label for every column
     output = {COLUMN_LABELS[i]: elements[i] for i in range(column_count)}
 
+    # Return tuple of device name and statistics dict
     return (device, output)
 
 def parse_diskstats(diskstats):
@@ -112,6 +118,7 @@ def parse_diskstats(diskstats):
     :param diskstats: Content of diskstats file to parse
     """
 
+    # Split content to lines and pre process them slightly
     lines = []
     for line in diskstats.split('\n'):
         # Replace duplicate whitespaces in line so columns are separated
@@ -124,10 +131,11 @@ def parse_diskstats(diskstats):
 
         lines.append(line)
 
+    # Parse line by line and add result to dictionary
     output = {}
     for line in lines:
-        a, b = parse_diskstats_line(line)
-        output[a] = b
+        dev, stats = parse_diskstats_line(line)
+        output[dev] = stats
 
     return output
 
@@ -137,8 +145,8 @@ def main():
     """
 
     diskstats = get_diskstats()
-    parsed = parse_diskstats(diskstats)
-    print(json.dumps(parsed, indent=2))
+    stats_dict = parse_diskstats(diskstats)
+    print(json.dumps(stats_dict, indent=2))
 
 if __name__ == '__main__':
     main()
