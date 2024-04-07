@@ -30,6 +30,17 @@ echo ''
 echo ''
 
 
+if ! command -v pydoclint > /dev/null 2> /dev/null; then
+    echo 'Error: Can not run pydoclint!' > /dev/stderr
+    echo 'pydoclint is not installed!' > /dev/stderr
+else
+    echo 'Running pydoclint...'
+    pydoclint $PYTHON_BINARY
+fi
+echo ''
+echo ''
+
+
 if ! command -v shellcheck > /dev/null 2> /dev/null; then
     echo 'Error: Can not run shellcheck!' > /dev/stderr
     echo 'shellcheck is not installed!' > /dev/stderr

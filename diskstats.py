@@ -72,6 +72,7 @@ def get_diskstats(path='/proc/diskstats'): # type: (str) -> str
     Returns content of diskstats file (/proc/diskstats by default)
 
     :param path: Path of diskstats file to read
+    :return: Content of diskstats file
     """
 
     try:
@@ -90,6 +91,7 @@ def parse_diskstats_line(line): # type: (str) -> tuple[str, dict[str, str]]
     tuple of devicename and dictionary containing all statistics.
 
     :param line: Content of single line of diskstats file to parse
+    :return: Tuple of device name and dictionary of statistics
     """
 
     # Split line into list of columns
@@ -117,6 +119,8 @@ def parse_diskstats(diskstats): # type: (str) -> dict
     name to dictionary from statistics name to statistics value.
 
     :param diskstats: Content of diskstats file to parse
+    :return: Dictionary from device name to dictionary from statistics
+        name to statistics value.
     """
 
     # Split content to lines and pre process them slightly
