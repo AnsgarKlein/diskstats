@@ -85,7 +85,7 @@ def get_diskstats(path='/proc/diskstats'): # type: (str) -> str
         print(error, file=sys.stderr)
         sys.exit(1)
 
-def parse_diskstats_line(line): # type: (str) -> tuple[str, dict[str, str]]
+def parse_diskstats_line(line): # type: (str) -> tuple[str, dict[str, int]]
     """
     Parse single line of diskstats file and return content as
     tuple of devicename and dictionary containing all statistics.
@@ -108,12 +108,12 @@ def parse_diskstats_line(line): # type: (str) -> tuple[str, dict[str, str]]
     column_count = min(len(elements), len(COLUMN_LABELS))
 
     # Create dict with label for every column
-    output = {COLUMN_LABELS[i]: elements[i] for i in range(column_count)}
+    output = {COLUMN_LABELS[i]: int(elements[i]) for i in range(column_count)}
 
     # Return tuple of device name and statistics dict
     return (device, output)
 
-def parse_diskstats(diskstats): # type: (str) -> dict
+def parse_diskstats(diskstats): # type: (str) -> dict[str, dict[str, int]]
     """
     Parse diskstats file and return content as dictionary from device
     name to dictionary from statistics name to statistics value.
