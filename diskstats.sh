@@ -58,6 +58,9 @@ declare -A DISCARD_TICKS   # Col 15, since Kernel 4.18
 declare -A FLUSH_IOS       # Col 16, since Kernel 5.5
 declare -A FLUSH_TICKS     # Col 17, since Kernel 5.5
 
+# Name of this script
+SCRIPT_NAME="$0"
+
 
 # Get output of /proc/diskstats with removed whitespaces
 # between columns
@@ -311,7 +314,62 @@ print_output() {
 }
 
 
+# Print help output
+#
+# Parameters: -
+print_help() {
+    echo "Usage: $SCRIPT_NAME [-h|--help] [FILE]"
+    echo ''
+    echo 'Positional arguments:'
+    echo '  FILE        File to read disk stats from. This is usually /proc/diskstats,'
+    echo '              which is also the default.'
+    echo ''
+    echo 'Options:'
+    echo '  -h, --help  Show this help message and exit'
+}
+
+
 main() {
+    # Check number of command line arguments
+    #if [[ $# -ne 0 ]] && [[ $# -ne 1 ]]; then
+    #    print_help
+    #    exit 1
+    #fi
+
+    # Parse command line arguments
+    local positional_args
+    positional_args=()
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+          -h|--help)
+            print_help
+            shift
+            exit 0
+            ;;
+          *)
+            positional_args+=("$1")
+            shift
+            ;;
+        esac
+    done
+
+    # Check positional arguments
+    local diskstats_path='/proc/diskstats'
+    if [[ "${#positional_args[@]}" -eq 0 ]]; then
+        # No positional argument given
+        :
+    elif [[ "${#positional_args[@]}" -eq 1 ]]; then
+        # Positional argument gives path of disk stats file
+        diskstats_path="${positional_args[0]}"
+    elif [[ "${#positional_args[@]}" -gt 1 ]]; then
+        echo 'Error: Unknown positional arguments' > /dev/stderr
+        echo '' > /dev/stderr
+        print_help > /dev/stderr
+        exit 1
+    fi
+    unset positional_args
+
+
     # Check that required tools are available
     local required_tools=(cat tr cut awk)
     for required_tool in "${required_tools[@]}"; do
@@ -322,9 +380,9 @@ main() {
         fi
     done
 
-    # Read /proc/diskstats
+    # Read /proc/diskstats file
     local diskstats
-    diskstats=$(get_diskstats '/proc/diskstats')
+    diskstats=$(get_diskstats "$diskstats_path")
 
     # Extract list of devices from /proc/diskstats
     local devices
@@ -339,4 +397,4 @@ main() {
     print_output
 }
 
-main
+main "$@"

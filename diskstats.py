@@ -40,6 +40,7 @@ https://docs.kernel.org/admin-guide/iostats.html
 """
 
 
+import argparse
 import json
 import sys
 
@@ -149,7 +150,19 @@ def main(): # type: () -> None
     Main function
     """
 
-    diskstats = get_diskstats()
+    # Parse command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file',
+        type=str,
+        metavar='FILE',
+        nargs='?',
+        default='/proc/diskstats',
+        help='''
+            File to read disk stats from. This is usually /proc/diskstats,
+            which is also the default.''')
+    args = parser.parse_args()
+
+    diskstats = get_diskstats(args.file)
     stats_dict = parse_diskstats(diskstats)
     print(json.dumps(stats_dict, indent=2))
 
