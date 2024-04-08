@@ -62,7 +62,7 @@ declare -A FLUSH_TICKS     # Col 17, since Kernel 5.5
 # Get output of /proc/diskstats with removed whitespaces
 # between columns
 #
-# Parameters: -
+# Parameters:
 #   $1: Path to /proc/diskstats file
 get_diskstats() {
     # Check parameters
@@ -75,7 +75,7 @@ get_diskstats() {
     diskstats_file="$1"
 
     if [[ ! -r "$diskstats_file" ]]; then
-        echo "Error: ${diskstats_file} not found or not readable!" > /dev/stderr
+        echo "Error: File \"${diskstats_file}\" not found or not readable!" > /dev/stderr
         exit 1
     fi
 
