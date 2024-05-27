@@ -2,10 +2,15 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$(realpath "$0")")" && pwd -P)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+
+# Change directory to project root
 cd "$PROJECT_ROOT" || exit 1
 
 PYTHON_BINARY='diskstats.py'
 BASH_BINARY='diskstats.sh'
+
+# Whether or not an error occurred
+errors='no'
 
 
 if ! command -v mypy > /dev/null 2> /dev/null; then
@@ -13,7 +18,9 @@ if ! command -v mypy > /dev/null 2> /dev/null; then
     echo 'mypy is not installed!' > /dev/stderr
 else
     echo 'Running mypy...'
-    mypy $PYTHON_BINARY
+    if ! mypy $PYTHON_BINARY; then
+        errors='yes'
+    fi
 fi
 echo ''
 echo ''
@@ -24,7 +31,9 @@ if ! command -v pylint > /dev/null 2> /dev/null; then
     echo 'pylint is not installed!' > /dev/stderr
 else
     echo 'Running pylint...'
-    pylint $PYTHON_BINARY
+    if ! pylint $PYTHON_BINARY; then
+        errors='yes'
+    fi
 fi
 echo ''
 echo ''
@@ -35,7 +44,9 @@ if ! command -v pydoclint > /dev/null 2> /dev/null; then
     echo 'pydoclint is not installed!' > /dev/stderr
 else
     echo 'Running pydoclint...'
-    pydoclint $PYTHON_BINARY
+    if ! pydoclint $PYTHON_BINARY; then
+        errors='yes'
+    fi
 fi
 echo ''
 echo ''
@@ -46,7 +57,15 @@ if ! command -v shellcheck > /dev/null 2> /dev/null; then
     echo 'shellcheck is not installed!' > /dev/stderr
 else
     echo 'Running shellcheck...'
-    shellcheck $BASH_BINARY
+    if ! shellcheck $BASH_BINARY; then
+        errors='yes'
+    fi
 fi
 echo ''
 echo ''
+
+
+# Return with error code if any linter returned an error
+if [ "$errors" = 'yes' ]; then
+    exit 1
+fi
