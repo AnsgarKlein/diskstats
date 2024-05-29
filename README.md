@@ -1,3 +1,5 @@
+[![CI](https://github.com/AnsgarKlein/diskstats/actions/workflows/ci.yml/badge.svg)](https://github.com/AnsgarKlein/diskstats/actions/workflows/ci.yml)
+
 diskstats
 =========
 
