@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 
-def execute_command(cmd: list) -> str:
+def execute_command(cmd): # type: (list) -> str
     """
     Execute given command str and return output
     """
@@ -14,7 +14,7 @@ def execute_command(cmd: list) -> str:
     output = subprocess.check_output(cmd)
     return output.decode()
 
-def compare_outputs(output1: dict, output2: dict) -> bool:
+def compare_outputs(output1, output2): # type: (dict, dict) -> bool
     """
     Check if two given dicts have same content
     """
@@ -23,7 +23,7 @@ def compare_outputs(output1: dict, output2: dict) -> bool:
         return True
     return False
 
-def main() -> None:
+def main(): # type: () -> None
     # Parse arguments
     parser = ArgumentParser(
         description='Compares json output of two applications')
@@ -32,8 +32,8 @@ def main() -> None:
     args = parser.parse_args()
 
     # Execute both commands
-    cmd1: list = args.cmd1
-    cmd2: list = args.cmd2
+    cmd1 = args.cmd1
+    cmd2 = args.cmd2
     output1 = execute_command(cmd1)
     output2 = execute_command(cmd2)
 
