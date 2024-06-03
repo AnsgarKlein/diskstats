@@ -39,3 +39,18 @@ jobs:
         run: |
           source venv/bin/activate
           scripts/lint.sh
+
+  test:
+    name: Test
+    runs-on: 'ubuntu-20.04'
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.6'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test
+        run: scripts/test.sh
