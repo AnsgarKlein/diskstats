@@ -135,6 +135,7 @@ parse_diskstats_for_device() {
     diskstats=$(echo "$diskstats" | grep " $device " | cut -d ' ' -f5-)
 
     # Count number of columns
+    local column_count
     column_count=$(echo "$diskstats" | awk -F ' ' '{print NF}')
 
     # Extract statistics asynchronously using background jobs,
