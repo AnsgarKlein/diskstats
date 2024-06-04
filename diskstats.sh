@@ -136,7 +136,8 @@ parse_diskstats_for_device() {
 
     # Count number of columns
     local column_count
-    column_count=$(echo "$diskstats" | awk -F ' ' '{print NF}')
+    column_count=$(echo "$diskstats" | grep -o ' ' | wc -l)
+    column_count=$((column_count + 1))
 
     # Extract statistics asynchronously using background jobs,
     # Command output gets sent to named pipe which we can later
@@ -372,7 +373,7 @@ main() {
 
 
     # Check that required tools are available
-    local required_tools=(cat tr cut awk)
+    local required_tools=(cat tr cut wc)
     for required_tool in "${required_tools[@]}"; do
         if ! command -v "$required_tool" &> /dev/null; then
             echo "Error: This script requires \"$required_tool\" to be available." > /dev/stderr
