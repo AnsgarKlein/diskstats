@@ -373,7 +373,7 @@ main() {
 
 
     # Check that required tools are available
-    local required_tools=(cat tr cut wc)
+    local required_tools=(tr cut wc)
     for required_tool in "${required_tools[@]}"; do
         if ! command -v "$required_tool" &> /dev/null; then
             echo "Error: This script requires \"$required_tool\" to be available." > /dev/stderr
