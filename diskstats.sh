@@ -105,7 +105,7 @@ get_devices_from_diskstat() {
     local diskstats
     diskstats="$1"
 
-    # Extract list of device names from 
+    # Extract list of device names from
     local devices
     devices="$(echo "$diskstats" | cut -d ' ' -f 4)"
 
@@ -332,12 +332,6 @@ print_help() {
 
 
 main() {
-    # Check number of command line arguments
-    #if [[ $# -ne 0 ]] && [[ $# -ne 1 ]]; then
-    #    print_help
-    #    exit 1
-    #fi
-
     # Parse command line arguments
     local positional_args
     positional_args=()
