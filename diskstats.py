@@ -96,7 +96,7 @@ def parse_diskstats_line(line): # type: (str) -> tuple[str, dict[str, int]]
     """
 
     # Split line into list of columns
-    elements = line.split(' ')
+    elements = [e for e in line.split(' ') if e != '']
 
     # Extract device name
     device = elements[2]
@@ -109,39 +109,27 @@ def parse_diskstats_line(line): # type: (str) -> tuple[str, dict[str, int]]
     column_count = min(len(elements), len(COLUMN_LABELS))
 
     # Create dict with label for every column
-    output = {COLUMN_LABELS[i]: int(elements[i]) for i in range(column_count)}
+    stats = {COLUMN_LABELS[i]: int(elements[i]) for i in range(column_count)}
 
     # Return tuple of device name and statistics dict
-    return (device, output)
+    return (device, stats)
 
-def parse_diskstats(diskstats): # type: (str) -> dict[str, dict[str, int]]
+def parse_diskstats(content): # type: (str) -> dict[str, dict[str, int]]
     """
     Parse diskstats file and return content as dictionary from device
     name to dictionary from statistics name to statistics value.
 
-    :param diskstats: Content of diskstats file to parse
+    :param content: Content of diskstats file to parse
     :return: Dictionary from device name to dictionary from statistics
         name to statistics value.
     """
 
-    # Split content to lines and pre process them slightly
-    lines = []
-    for line in diskstats.split('\n'):
-        # Replace duplicate whitespaces in line so columns are separated
-        # by exactly one whitespace.
-        line = ' '.join((word for word in line.split(' ') if word != ''))
-
-        # Skip empty lines
-        if line.strip() == '':
-            continue
-
-        lines.append(line)
+    # Split content to non-empty lines
+    lines = (line for line in content.split('\n') if line.strip() != '')
 
     # Parse line by line and add result to dictionary
-    output = {}
-    for line in lines:
-        dev, stats = parse_diskstats_line(line)
-        output[dev] = stats
+    results = (parse_diskstats_line(line) for line in lines)
+    output = dict(results)
 
     return output
 
