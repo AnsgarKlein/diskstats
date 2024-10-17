@@ -53,8 +53,8 @@ Bash/Python implementation
 
 Script is available in two variants, one in pure Bash and one in pure Python 3.
 
-The Python version has no external dependencies and should work with every
-version of Python 3.
+The Python version has no external dependencies and should work with (almost)
+every version of Python 3.
 
 For legacy or embedded systems that don't have a Python interpreter there is
 an alternative, 100% compatible version in pure Bash. Make sure the system's
