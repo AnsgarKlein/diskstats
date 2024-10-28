@@ -13,6 +13,7 @@ BASH_BINARY='diskstats.sh'
 
 
 # Compare script output for every file
+test_failed='false'
 for resource in "$RESOURCE_DIR/"*; do
     $COMPARISON_CHECKER \
       --cmd1 "./${PYTHON_BINARY}" "$resource" \
@@ -20,7 +21,6 @@ for resource in "$RESOURCE_DIR/"*; do
       2> /dev/null > /dev/null
     result=$?
 
-    test_failed='false'
     if [[ "$result" -eq 0 ]] ;then
         printf "%-75s\e[0;32m%s\e[0m\n" "Testing file ${resource} ..." "OK"
     else
